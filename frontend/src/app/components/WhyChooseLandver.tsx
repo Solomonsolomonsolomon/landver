@@ -1,10 +1,18 @@
 import React from "react";
 
-import { User,LockIcon,Eye ,CheckCircle2Icon, Globe2Icon,ListCheckIcon} from "lucide-react";
+import {
+  User,
+  LockIcon,
+  Eye,
+  CheckCircle2Icon,
+  Globe2Icon,
+  ListCheckIcon,
+  AwardIcon,
+} from "lucide-react";
+
 const WhyChooseLandVer: React.FC = () => {
   return (
     <div className="p-8 bg-white">
-     
       <div className="grid md:grid-cols-3 gap-8 text-center">
         <div className="p-6">
           <LockIcon size={40} className="mx-auto text-blue-600 mb-4" />
@@ -36,9 +44,8 @@ const WhyChooseLandVer: React.FC = () => {
         </div>
       </div>
 
-
       <h2 className="text-2xl font-bold text-center p-3 mb-3">How It Works</h2>
-      <div className="grid md:grid-cols-3 gap-8 text-center">
+      <div className="grid md:grid-cols-4 gap-8 text-center">
         <div className="p-6">
           <User size={40} className="mx-auto text-purple-600 mb-4" />
           <h3 className="text-xl font-semibold mb-2">Register</h3>
@@ -54,6 +61,15 @@ const WhyChooseLandVer: React.FC = () => {
         </div>
 
         <div className="p-6">
+          <AwardIcon size={40} className="mx-auto text-orange-600 mb-4" />
+          <h3 className="text-xl font-semibold mb-2">NFT Minting</h3>
+          <p className="text-gray-600">
+            LandVer mints NFTs for landowners, providing indisputable proof of
+            ownership.
+          </p>
+        </div>
+
+        <div className="p-6">
           <ListCheckIcon size={40} className="mx-auto text-teal-600 mb-4" />
           <h3 className="text-xl font-semibold mb-2">Management</h3>
           <p className="text-gray-600">
@@ -61,8 +77,6 @@ const WhyChooseLandVer: React.FC = () => {
           </p>
         </div>
       </div>
-
-     
     </div>
   );
 };
