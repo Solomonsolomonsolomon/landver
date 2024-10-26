@@ -27,12 +27,57 @@
       ]
     },
     {
+      "login": "GoSTEAN",
+      "name": "Stephanie Nwankwo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63151237?v=4",
+      "profile": "https://github.com/GoSTEAN",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
       "login": "rajiabdul",
       "name": "RAJI ABDUL",
       "avatar_url": "https://avatars.githubusercontent.com/u/119139404?v=4",
       "profile": "https://github.com/rajiabdul",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "manlikeHB",
+      "name": "Yusuf Habib",
+      "avatar_url": "https://avatars.githubusercontent.com/u/109147010?v=4",
+      "profile": "https://github.com/manlikeHB",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Akshola00",
+      "name": "Akinshola",
+      "avatar_url": "https://avatars.githubusercontent.com/u/114211385?v=4",
+      "profile": "https://github.com/Akshola00",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "SoarinSkySagar",
+      "name": "Sagar Rana",
+      "avatar_url": "https://avatars.githubusercontent.com/u/117727361?v=4",
+      "profile": "https://github.com/SoarinSkySagar",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "saimeunt",
+      "name": "saimeunt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5597359?v=4",
+      "profile": "https://github.com/saimeunt",
+      "contributions": [
+        "code"
       ]
     }
   ],
