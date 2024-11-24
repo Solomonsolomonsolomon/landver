@@ -1,5 +1,6 @@
 #[starknet::contract]
 pub mod LandRegistryContract {
+    use OwnableComponent::InternalTrait;
     use starknet::SyscallResultTrait;
     use starknet::{
         get_caller_address, get_contract_address, get_block_timestamp, ContractAddress, syscalls
@@ -19,9 +20,28 @@ pub mod LandRegistryContract {
     use starknet::storage::{Map, StorageMapWriteAccess, StorageMapReadAccess};
     use land_registry::custom_error::Errors;
 
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
+
+    // open zeppellin commponents
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+    // Upgradeable
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+
 
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage, // Openzeppelin storage for Ownable component
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage, // Openzeppelin storage for Upgradable component 
         lands: Map::<u256, Land>, // Stores all registered lands
         owner_lands: Map::<(ContractAddress, u256), u256>, // Maps owners to their lands
         owner_land_count: Map::<ContractAddress, u256>, // Number of lands per owner
@@ -37,7 +57,7 @@ pub mod LandRegistryContract {
         land_inspector_assignments: Map::<u256, ContractAddress>, // Inspector assignments
         registered_inspectors: Map::<ContractAddress, bool>, // List of registered inspectors
         inspector_count: u256, // Total number of registered inspectors
-        fee_per_square_unit: u256,
+        fee_per_square_unit: u128,
         listings: Map::<u256, Listing>,
         listing_count: u256,
         price_history: Map::<
@@ -51,6 +71,10 @@ pub mod LandRegistryContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event, // openzeppelin event
+        #[flat]
+        UpgradeableEvent: UpgradeableComponent::Event, // openzeppelin event
         LandRegistered: LandRegistered,
         LandTransferred: LandTransferred,
         LandVerified: LandVerified,
@@ -71,8 +95,11 @@ pub mod LandRegistryContract {
     fn constructor(
         ref self: ContractState,
         nft_contract_class_hash: starknet::class_hash::ClassHash,
-        initial_fee_rate: u256
+        initial_fee_rate: u128
     ) {
+        let owner = get_caller_address();
+        self.ownable.initializer(owner);
+
         self.inspector_count.write(0);
 
         // Deploy the NFT contract and store its address
@@ -93,6 +120,11 @@ pub mod LandRegistryContract {
 
     #[abi(embed_v0)]
     impl LandRegistry of ILandRegistry<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: starknet::class_hash::ClassHash) {
+            self.ownable.assert_only_owner();
+            self.upgradeable.upgrade(new_class_hash);
+        }
+
         // Registers a new land parcel in the system
         fn register_land(
             ref self: ContractState, location: Location, area: u256, land_use: LandUse,
@@ -361,7 +393,7 @@ pub mod LandRegistryContract {
             self.emit(InspectorRemoved { inspector });
         }
 
-        fn set_fee(ref self: ContractState, fee: u256) {
+        fn set_fee(ref self: ContractState, fee: u128) {
             let caller = get_caller_address();
             assert(self.registered_inspectors.read(caller), Errors::NOT_AUTHORIZED);
             let old_fee = self.fee_per_square_unit.read();
@@ -369,7 +401,7 @@ pub mod LandRegistryContract {
             self.emit(FeeUpdated { old_fee, new_fee: fee });
         }
 
-        fn get_fee(self: @ContractState) -> u256 {
+        fn get_fee(self: @ContractState) -> u128 {
             self.fee_per_square_unit.read()
         }
 
@@ -548,13 +580,13 @@ pub mod LandRegistryContract {
             inspector == caller
         }
 
-        fn get_fee(self: @ContractState, area: u256) -> u256 {
-            area * self.fee_per_square_unit.read()
+        fn get_fee(self: @ContractState, area: u256) -> u128 {
+            area.try_into().unwrap() * self.fee_per_square_unit.read()
         }
 
-        fn calculate_fee(self: @ContractState, area: u256) -> u256 {
+        fn calculate_fee(self: @ContractState, area: u256) -> u128 {
             assert(area > 0, Errors::AREA_NOT_ZERO);
-            area * self.fee_per_square_unit.read()
+            area.try_into().unwrap() * self.fee_per_square_unit.read()
         }
 
         fn _remove_from_active_listings(ref self: ContractState, listing_id: u256) {
